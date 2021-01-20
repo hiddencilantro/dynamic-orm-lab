@@ -1,5 +1,6 @@
 require_relative "../config/environment.rb"
 require 'active_support/inflector'
+require 'pry'
 
 class InteractiveRecord
 
@@ -31,23 +32,19 @@ class InteractiveRecord
     end
 
     # def question_marks_for_insert
-    #     (self.class.column_names.length-1).times.map{"?"}.join(", ")
+    #     (self.class.column_names.size-1).times.map{"?"}.join(", ")
     # end
 
-    # def values_for_insert
-    #     self.class.column_names[1..-1].map{|column_name| "'#{self.send(column_name)}'"}
+    # def values_for_insert_two
+    #     self.class.column_names[1..-1].map{|column_name| self.send(column_name)}
     # end
 
     def values_for_insert
-        values = []
-        self.class.column_names[1..-1].each do |column_name|
-            values << "'#{self.send(column_name)}'"
-        end
-        values.join(", ")
+        self.class.column_names[1..-1].map{|column_name| "'#{self.send(column_name)}'"}.join(", ")
     end
 
     def save
-        # DB[:conn].execute("INSERT INTO #{table_name_for_insert} (#{col_names_for_insert}) VALUES (#{question_marks_for_insert})", *values_for_insert)
+        # DB[:conn].execute("INSERT INTO #{table_name_for_insert} (#{col_names_for_insert}) VALUES (#{question_marks_for_insert})", *values_for_insert_two)
         DB[:conn].execute("INSERT INTO #{table_name_for_insert} (#{col_names_for_insert}) VALUES (#{values_for_insert})")
         self.id = DB[:conn].execute("SELECT last_insert_rowid() FROM #{table_name_for_insert}")[0][0]
     end
